@@ -23,6 +23,20 @@ SLANG = {
 bristol_df = pd.read_csv("/u/cs401/Wordlists/BristolNorms+GilhoolyLogie.csv", index_col='WORD')
 warringer_df = pd.read_csv("/u/cs401/Wordlists/Ratings_Warriner_et_al.csv", index_col='Word')
 
+with open('/u/cs401/A1/feats/Alt_IDs.txt', 'r') as f:
+    alt_ids = f.read().splitlines()
+with open('/u/cs401/A1/feats/Left_IDs.txt', 'r') as f:
+    left_ids = f.read().splitlines()
+with open('/u/cs401/A1/feats/Right_IDs.txt', 'r') as f:
+    right_ids = f.read().splitlines()
+with open('/u/cs401/A1/feats/Center_IDs.txt', 'r') as f:
+    center_ids = f.read().splitlines()
+
+alt_feats = np.load('/u/cs401/A1/feats/Alt_feats.dat.npy')
+right_feats = np.load('/u/cs401/A1/feats/Right_feats.dat.npy')
+left_feats = np.load('/u/cs401/A1/feats/Left_feats.dat.npy')
+center_feats = np.load('/u/cs401/A1/feats/Center_feats.dat.npy')
+
 
 def extract1(comment):
     ''' This function extracts features from a single comment
@@ -38,7 +52,6 @@ def extract1(comment):
     # TODO: Extract features that do not rely on capitalization.
     feats = np.zeros(173+1)
 
-    print(comment)
     modComm = comment
     modComm = re.sub(r"/[-a-zA-Z!\"#$%&'`()*+,.:;<=>?@\[\]^_~]+?\s", " ", modComm)
     modComm = re.sub(r"/[-a-zA-Z!\"#$%&'`()*+,.:;<=>?@\[\]^_~]+?\n", " ", modComm)
@@ -49,10 +62,7 @@ def extract1(comment):
     modComm = re.sub(r"\n.+?/", " ", modComm)
     modComm = modComm[1:]
     tags = modComm.split()
-    print(tags)
-    print(words)
-    print(len(tags))
-    print(len(words))
+
     token_length_sum = 0
     token_count = 0
     aoa = []
@@ -97,7 +107,7 @@ def extract1(comment):
             feats[13] += 1
         if word in SLANG:
             feats[14] += 1
-        if len([ch for ch in word if all(j in string.punctuation for j in ch)]) == len(word):
+        if len([ch for ch in word if all(j in string.punctuation for j in ch)]) != len(word):
             token_length_sum += len(word)
             token_count += 1
         if word in bristol_df.index:
@@ -109,8 +119,6 @@ def extract1(comment):
             arousal.append(warringer_df.loc[word]['A.Mean.Sum'])
             dominance.append(warringer_df.loc[word]['D.Mean.Sum'])
 
-
-
     modComm = comment
     #modComm = re.sub(r"\s.+?/", " ", modComm)
     #modComm = re.sub(r"\n.+?/", "\n", modComm)
@@ -121,8 +129,8 @@ def extract1(comment):
     for sent in sents:
         sents_sum += len(sent.split())
 
-    feats[15] = sents_sum / len(sents)
-    feats[16] = token_length_sum / token_count
+    feats[15] = 1.0*sents_sum / len(sents)
+    feats[16] = 1.0*token_length_sum / token_count
     feats[17] = len(sents)
     feats[18] = np.mean(np.array(aoa))
     feats[19] = np.mean(np.array(img))
@@ -136,6 +144,7 @@ def extract1(comment):
     feats[27] = np.std(np.array(valence))
     feats[28] = np.std(np.array(arousal))
     feats[29] = np.std(np.array(dominance))
+
 
     return feats[1:]
 
@@ -151,9 +160,25 @@ def extract2(feats, comment_class, comment_id):
         feats : numpy Array, a 173-length vector of floating point features (this 
         function adds feature 30-173). This should be a modified version of 
         the parameter feats.
-    '''    
-    print('TODO')
+    '''
 
+    if comment_class == 'Alt':
+        row = alt_ids.index(comment_id)
+        feats_liwc = alt_feats[row]
+    elif comment_class == 'Right':
+        row = right_ids.index(comment_id)
+        feats_liwc = right_feats[row]
+    elif comment_class == 'Left':
+        row = left_ids.index(comment_id)
+        feats_liwc = left_feats[row]
+    elif comment_class == 'Center':
+        row = center_ids.index(comment_id)
+        feats_liwc = center_feats[row]
+    else:
+        print("WRONG CLASS!")
+
+    feats[29:] = feats_liwc
+    return feats
 
 def main(args):
     data = json.load(open(args.input))
@@ -164,10 +189,12 @@ def main(args):
     # TODO: Use extract2 to copy LIWC features (features 30-173)
     # into feats. (Note that these rely on each data point's class,
     # which is why we can't add them in extract1).
+    idx = 0
+    cat_dict = {'Left':0, 'Center': 1, 'Right': 2, 'Alt':3}
     for line in data:
         new_feat = extract1(line['body'])
-        print(len(new_feat))
-
+        feats[idx][:-1] = extract2(new_feat, line['cat'], line['id'])
+        feats[idx][-1] = cat_dict[line['cat']]
     np.savez_compressed(args.output, feats)
 
     
