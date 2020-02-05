@@ -41,8 +41,8 @@ def class31(output_dir, X_train, X_test, y_train, y_test):
        i: int, the index of the supposed best classifier
     '''
     print('TODO Section 3.1')
-    
-    with open(f"{output_dir}/a1_3.1.txt", "w") as outf:
+  
+    with open(f"{output_dir}/a1_3.1.txt".format(output_dir), "w") as outf:
         # For each classifier, compute results and write the following output:
         #     outf.write(f'Results for {classifier_name}:\n')  # Classifier name
         #     outf.write(f'\tAccuracy: {accuracy:.4f}\n')
@@ -142,4 +142,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # TODO: load data and split into train and test.
+    data = load(args.input)
+    lst = data.files
+    for item in lst:
+        #print(item)
+        #print(data[item])
+        d1 = data[item]
+    print(d1)
     # TODO : complete each classification experiment, in sequence.
