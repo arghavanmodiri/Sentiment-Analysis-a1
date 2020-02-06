@@ -1,5 +1,6 @@
 import argparse
 import os
+import numpy as np
 from scipy.stats import ttest_rel
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -14,18 +15,29 @@ from sklearn.linear_model import SGDClassifier
 
 def accuracy(C):
     ''' Compute accuracy given Numpy array confusion matrix C. Returns a floating point value '''
-    print ('TODO')
+    diagonal_sum = C.trace()
+    sum_of_all_elements = C.sum()
+    return 1.0 * diagonal_sum / sum_of_all_elements 
 
 
 def recall(C):
     ''' Compute recall given Numpy array confusion matrix C. Returns a list of floating point values '''
-    print ('TODO')
+    r = []
+    for label in range(len(C)):
+      row = C[label, :]
+      r.append(C[label, label] / row.sum())
+
+    return r
 
 
 def precision(C):
     ''' Compute precision given Numpy array confusion matrix C. Returns a list of floating point values '''
-    print ('TODO')
-    
+    p = []
+    for label in range(len(C)):
+      col = C[:, label]
+      p.append(C[label, label] / col.sum())
+
+    return p
 
 def class31(output_dir, X_train, X_test, y_train, y_test):
     ''' This function performs experiment 3.1
@@ -37,10 +49,13 @@ def class31(output_dir, X_train, X_test, y_train, y_test):
        y_train: NumPy array, with the selected training classes
        y_test: NumPy array, with the selected testing classes
 
-    Returns:      
+    Returns:
        i: int, the index of the supposed best classifier
     '''
     print('TODO Section 3.1')
+    print(X_train)
+    #X_train, X_test, y_train, y_test = train_test_split
+
   
     with open(f"{output_dir}/a1_3.1.txt".format(output_dir), "w") as outf:
         # For each classifier, compute results and write the following output:
@@ -142,11 +157,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # TODO: load data and split into train and test.
-    data = load(args.input)
+    data = np.load(args.input)
     lst = data.files
     for item in lst:
         #print(item)
         #print(data[item])
         d1 = data[item]
     print(d1)
+    #class31()
     # TODO : complete each classification experiment, in sequence.
