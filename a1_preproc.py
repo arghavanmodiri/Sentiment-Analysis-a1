@@ -30,6 +30,10 @@ def preproc1(comment , steps=range(1, 5)):
         modComm = re.sub(r"\t{1,}", " ", modComm)
         modComm = re.sub(r"\v{1,}", " ", modComm)
         modComm = re.sub(r"\f{1,}", " ", modComm)
+        if "\\u" in modComm:
+            print("**************************************************************u problem")
+            print(modComm)
+        modComm = re.sub(r"\\u{1,}", " ", modComm)
     if 2 in steps:  # unescape html
         modComm = html.unescape(modComm)
     if 3 in steps:  # remove URLs
@@ -44,6 +48,11 @@ def preproc1(comment , steps=range(1, 5)):
     output = []
     for sent in modComm.sents:
         for token in sent:
+            if token.tag_ == "_SP":
+                print("------------------------------------------------------SP problem")
+                print(modComm)
+                continue
+
             if token.lemma_[0] == "-":
                 output.append(token.text)
             else:
@@ -74,15 +83,33 @@ def main(args):
             data = json.load(open(fullFile))
             start = args.ID[0] % len(data)
             data = data[start:start+args.max]
-            #data = data[start:start+4]
             data_temp = []
             for line in data:
                 data_temp.append(json.loads(line))
-            data_df = pd.DataFrame.from_dict(data_temp, orient='columns')
-            data_df = data_df[['id','body']]
-            data_df['cat'] = file
-            data_df['body'] = data_df['body'].apply(lambda x:preproc1(x))
-            allOutput = data_df.to_dict(orient='records')
+            data_df_temp = pd.DataFrame.from_dict(data_temp, orient='columns')
+            data_df_temp = data_df_temp[['id','body']]
+            data_df_temp['cat'] = file
+            data_df_temp['body'] = data_df_temp['body'].apply(lambda x:preproc1(x))
+            data_df = pd.concat([data_df, data_df_temp], axis=0, ignore_index=True)
+
+    allOutput = data_df.to_dict(orient='records')
+    zero = 0
+    one = 0
+    two = 0
+    three =0
+    for i in data_df['cat']:
+        if i == 'Left':
+            zero += 1
+        if i == 'Right':
+            one += 1
+        if i == 'Center':
+            two += 1
+        if i == 'Alt':
+            three += 1
+    print(zero)
+    print(one)
+    print(two)
+    print(three)
 
     fout = open(args.output, 'w')
     fout.write(json.dumps(allOutput))

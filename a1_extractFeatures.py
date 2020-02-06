@@ -38,7 +38,7 @@ left_feats = np.load('/u/cs401/A1/feats/Left_feats.dat.npy')
 center_feats = np.load('/u/cs401/A1/feats/Center_feats.dat.npy')
 
 
-def extract1(comment, id, cat):
+def extract1(comment):
     ''' This function extracts features from a single comment
 
     Parameters:
@@ -76,9 +76,10 @@ def extract1(comment, id, cat):
 
     if len(tags) != len(words):
         print("*******************")
-        print(id)
-        print(cat)
-        print("comment :", repr(comment))
+        print("ERROR in finding words and tag in this comment :\n", repr(comment))
+        print(tags)
+        print(words)
+        print("len(tags): ", len(tags),"    -len(words): ", len(words))
 
     for idx in range(len(words)):
         word = words[idx]
@@ -160,9 +161,6 @@ def extract1(comment, id, cat):
     if dominance != []:
         feats[26] = np.mean(np.array(dominance))
         feats[29] = np.std(np.array(dominance))
-    if token_count == 0:
-        print("comment :", comment)
-        print(feats[1:])
 
     return feats[1:]
 
@@ -208,11 +206,34 @@ def main(args):
     # into feats. (Note that these rely on each data point's class,
     # which is why we can't add them in extract1).
     idx = 0
-    cat_dict = {'Left':0, 'Center': 1, 'Right': 2, 'Alt':3}
+    cat_dict = {'Left':0, 'Center': 1, 'Right': 2, 'Alt':3}    
     for line in data:
-        new_feat = extract1(line['body'], line['id'], line['cat'])
+        new_feat = extract1(line['body'])
         feats[idx][:-1] = extract2(new_feat, line['cat'], line['id'])
-        feats[idx][-1] = cat_dict[line['cat']]
+        feats[idx][-1] = int(cat_dict[line['cat']])
+        idx += 1
+
+    zero = 0
+    one = 0
+    two = 0
+    three =0
+    temp = 0
+    for i in feats[:,-1]:
+        temp += 1
+        #print(temp," : ",i)
+        if i == 0:
+            zero += 1
+        if i == 1:
+            one += 1
+        if i == 2:
+            two += 1
+        if i == 3:
+            three += 1
+    print(zero)
+    print(one)
+    print(two)
+    print(three)
+
     np.savez_compressed(args.output, feats)
 
     

@@ -54,9 +54,13 @@ def class31(output_dir, X_train, X_test, y_train, y_test):
     '''
     print('TODO Section 3.1')
     print(X_train)
-    #X_train, X_test, y_train, y_test = train_test_split
+    clf = []
+    clf[0] = SGDClassifier(loss='hinge')
+    clf[0] .fit(X_train, y_train)
+    y_pred = clf[0].predict(X_test)
+    c_matrix = confusion_matrix(y_test, y_pred)
 
-  
+    iBest = 0
     with open(f"{output_dir}/a1_3.1.txt".format(output_dir), "w") as outf:
         # For each classifier, compute results and write the following output:
         #     outf.write(f'Results for {classifier_name}:\n')  # Classifier name
@@ -155,14 +159,33 @@ if __name__ == "__main__":
         help="The directory to write a1_3.X.txt files to.",
         default=os.path.dirname(os.path.dirname(__file__)))
     args = parser.parse_args()
+    output_dir = args.output_dir
     
     # TODO: load data and split into train and test.
     data = np.load(args.input)
     lst = data.files
     for item in lst:
-        #print(item)
-        #print(data[item])
-        d1 = data[item]
-    print(d1)
-    #class31()
+        data_list = data[item]
+    X = data_list[:,:-1]
+    y = data_list[:,-1]
+    #for comment in data_list:
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    zero = 0
+    one = 0
+    two = 0
+    three =0
+    for i in y:
+      if i == 0:
+        zero += 1
+      if i == 1:
+        one += 1
+      if i == 2:
+        two += 1
+      if i == 3:
+        three += 1
+    print(zero)
+    print(one)
+    print(two)
+    print(three)
+    class31(output_dir, X_train, X_test, y_train, y_test)
     # TODO : complete each classification experiment, in sequence.
