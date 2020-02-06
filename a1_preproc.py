@@ -26,32 +26,40 @@ def preproc1(comment , steps=range(1, 5)):
     modComm = comment
     if 1 in steps:  # replace newlines with spaces
         modComm = re.sub(r"\n{1,}", " ", modComm)
+        modComm = re.sub(r"\r{1,}", " ", modComm)
+        modComm = re.sub(r"\t{1,}", " ", modComm)
+        modComm = re.sub(r"\v{1,}", " ", modComm)
+        modComm = re.sub(r"\f{1,}", " ", modComm)
     if 2 in steps:  # unescape html
         modComm = html.unescape(modComm)
     if 3 in steps:  # remove URLs
         modComm = re.sub(r"(http|www)\S+", "", modComm)
     if 4 in steps:  # remove duplicate spaces
         modComm = re.sub(' +', ' ', modComm)
+        modComm = modComm.strip()
 
     # TODO: get Spacy document for modComm
     modComm = nlp(modComm)
 
     output = []
     for sent in modComm.sents:
-        print("senteence : ", sent)
         for token in sent:
             if token.lemma_[0] == "-":
                 output.append(token.text)
             else:
-                output.append(token.lemma_)
+                temp = token.lemma_
+                if " " in temp and len(temp) > 1:
+                    temp = re.sub(r"\s", "", temp)
+                if temp == " ":
+                    print("Oh...What? ", temp)
+                    continue
+                output.append(temp)
             output.append("/{}".format(token.tag_))
             output.append(" ")
         output = output[:-1]
         output.append("\n")
 
     modComm = "".join(output)
-    print(modComm)
-    print("\n")
 
     return modComm
 
@@ -59,29 +67,21 @@ def preproc1(comment , steps=range(1, 5)):
 def main(args):
     allOutput = []
     data_df = pd.DataFrame()
-    print(os.walk(indir))
     for subdir, dirs, files in os.walk(indir):
-        print("dfs")
         for file in files:
             fullFile = os.path.join(subdir, file)
-            print( "Processing " + fullFile)
 
             data = json.load(open(fullFile))
-            print('1 ', len(data))
             start = args.ID[0] % len(data)
-            #data = data[start:start+args.max]
+            data = data[start:start+args.max]
             #data = data[start:start+4]
-            print('2 ', len(data))
             data_temp = []
             for line in data:
                 data_temp.append(json.loads(line))
             data_df = pd.DataFrame.from_dict(data_temp, orient='columns')
             data_df = data_df[['id','body']]
             data_df['cat'] = file
-            # print(data_df.iloc[0:3]['body'])
-            print(data_df['body'])
             data_df['body'] = data_df['body'].apply(lambda x:preproc1(x))
-            #print(data_df.iloc[0:3]['body'])
             allOutput = data_df.to_dict(orient='records')
 
     fout = open(args.output, 'w')

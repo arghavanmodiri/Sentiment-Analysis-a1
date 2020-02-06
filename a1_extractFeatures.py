@@ -38,7 +38,7 @@ left_feats = np.load('/u/cs401/A1/feats/Left_feats.dat.npy')
 center_feats = np.load('/u/cs401/A1/feats/Center_feats.dat.npy')
 
 
-def extract1(comment):
+def extract1(comment, id, cat):
     ''' This function extracts features from a single comment
 
     Parameters:
@@ -51,6 +51,8 @@ def extract1(comment):
     # TODO: Lowercase the text in comment. Be careful not to lowercase the tags. (e.g. "Dog/NN" -> "dog/NN").
     # TODO: Extract features that do not rely on capitalization.
     feats = np.zeros(173+1)
+    if comment == '':
+        return feats[1:]
 
     modComm = comment
     modComm = re.sub(r"/[-a-zA-Z!\"#$%&'`()*+,.:;<=>?@\[\]^_~]+?\s", " ", modComm)
@@ -71,6 +73,12 @@ def extract1(comment):
     valence = []
     arousal = []
     dominance = []
+
+    if len(tags) != len(words):
+        print("*******************")
+        print(id)
+        print(cat)
+        print("comment :", repr(comment))
 
     for idx in range(len(words)):
         word = words[idx]
@@ -111,13 +119,13 @@ def extract1(comment):
             token_length_sum += len(word)
             token_count += 1
         if word in bristol_df.index:
-            aoa.append(bristol_df.loc[word]['AoA (100-700)'])
-            img.append(bristol_df.loc[word]['IMG'])
-            fam.append(bristol_df.loc[word]['FAM'])
+            aoa.append(bristol_df.loc[word]['AoA (100-700)'].max())
+            img.append(bristol_df.loc[word]['IMG'].max())
+            fam.append(bristol_df.loc[word]['FAM'].max())
         if word in warringer_df.index:
-            valence.append(warringer_df.loc[word]['V.Mean.Sum'])
-            arousal.append(warringer_df.loc[word]['A.Mean.Sum'])
-            dominance.append(warringer_df.loc[word]['D.Mean.Sum'])
+            valence.append(warringer_df.loc[word]['V.Mean.Sum'].max())
+            arousal.append(warringer_df.loc[word]['A.Mean.Sum'].max())
+            dominance.append(warringer_df.loc[word]['D.Mean.Sum'].max())
 
     modComm = comment
     #modComm = re.sub(r"\s.+?/", " ", modComm)
@@ -129,22 +137,32 @@ def extract1(comment):
     for sent in sents:
         sents_sum += len(sent.split())
 
-    feats[15] = 1.0*sents_sum / len(sents)
-    feats[16] = 1.0*token_length_sum / token_count
-    feats[17] = len(sents)
-    feats[18] = np.mean(np.array(aoa))
-    feats[19] = np.mean(np.array(img))
-    feats[20] = np.mean(np.array(fam))
-    feats[21] = np.std(np.array(aoa))
-    feats[22] = np.std(np.array(img))
-    feats[23] = np.std(np.array(fam))
-    feats[24] = np.mean(np.array(valence))
-    feats[25] = np.mean(np.array(arousal))
-    feats[26] = np.mean(np.array(dominance))
-    feats[27] = np.std(np.array(valence))
-    feats[28] = np.std(np.array(arousal))
-    feats[29] = np.std(np.array(dominance))
+    if token_count > 0:
+        feats[16] = 1.0*token_length_sum / token_count
 
+    feats[15] = 1.0*sents_sum / len(sents)
+    feats[17] = len(sents)
+    if aoa != []:
+        feats[18] = np.mean(np.array(aoa))
+        feats[21] = np.std(np.array(aoa))
+    if img != []:
+        feats[19] = np.mean(np.array(img))
+        feats[22] = np.std(np.array(img))
+    if fam != []:
+        feats[20] = np.mean(np.array(fam))
+        feats[23] = np.std(np.array(fam))
+    if valence != []:
+        feats[24] = np.mean(np.array(valence))
+        feats[27] = np.std(np.array(valence))
+    if arousal != []:
+        feats[25] = np.mean(np.array(arousal))
+        feats[28] = np.std(np.array(arousal))
+    if dominance != []:
+        feats[26] = np.mean(np.array(dominance))
+        feats[29] = np.std(np.array(dominance))
+    if token_count == 0:
+        print("comment :", comment)
+        print(feats[1:])
 
     return feats[1:]
 
@@ -192,7 +210,7 @@ def main(args):
     idx = 0
     cat_dict = {'Left':0, 'Center': 1, 'Right': 2, 'Alt':3}
     for line in data:
-        new_feat = extract1(line['body'])
+        new_feat = extract1(line['body'], line['id'], line['cat'])
         feats[idx][:-1] = extract2(new_feat, line['cat'], line['id'])
         feats[idx][-1] = cat_dict[line['cat']]
     np.savez_compressed(args.output, feats)
