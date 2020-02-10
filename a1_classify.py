@@ -2,12 +2,14 @@ import argparse
 import os
 import numpy as np
 from scipy.stats import ttest_rel
+from scipy import stats
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import f_classif
 from sklearn.feature_selection import SelectKBest
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold
 from sklearn.neural_network import MLPClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import SGDClassifier  
@@ -220,12 +222,39 @@ def class34(output_dir, X_train, X_test, y_train, y_test, i):
        i: int, the index of the supposed best classifier (from task 3.1)  
         '''
     print('TODO Section 3.4')
-    
+    X_train_all = np.append(X_train,X_test, axis=0)
+    y_train_all = np.append(y_train,y_test, axis=0)
+
+    kf = KFold(n_splits=5, shuffle=True)
+    kfold_accuracies = [[], [], [], [], []]
+    flag = 0
     with open(f"{output_dir}/a1_3.4.txt", "w") as outf:
         # Prepare kfold_accuracies, then uncomment this, so it writes them to outf.
         # for each fold:
-        #     outf.write(f'Kfold Accuracies: {[round(acc, 4) for acc in kfold_accuracies]}\n')
-        # outf.write(f'p-values: {[round(pval, 4) for pval in p_values]}\n')
+        fold_count = 0
+        for train_index, test_index in kf.split(X_train_all):
+            X_tr_fold, X_ts_fold = X_train_all[train_index], X_train_all[test_index]
+            y_tr_fold, y_ts_fold = y_train_all[train_index], y_train_all[test_index]
+
+            for idx in range(len(clfs)):
+                clf = clfs[idx]
+                clf.fit(X_tr_fold, y_tr_fold)
+                y_pred = clf.predict(X_ts_fold)
+                c_temp = confusion_matrix(y_ts_fold, y_pred)
+                acc = accuracy(c_temp)
+                print(acc)
+                #kfold_accuracies_avg[idx] += acc/5.0
+                kfold_accuracies[fold_count].append(acc)
+
+            outf.write(f'Kfold Accuracies: {[round(acc, 4) for acc in kfold_accuracies[fold_count]]}\n')
+            fold_count += 1
+        kfold_accuracies_arr = np.array(kfold_accuracies)
+        best_clf_idx = np.argmax(np.mean(kfold_accuracies_arr, axis=0))
+        p_values = []
+        for i in range(len(clfs)):
+            if i != best_clf_idx:
+                p_values.append(ttest_rel(kfold_accuracies_arr[:,i], kfold_accuracies_arr[:,best_clf_idx]).pvalue)
+        outf.write(f'p-values: {[round(pval, 4) for pval in p_values]}\n')
         pass
 
 
@@ -266,9 +295,9 @@ if __name__ == "__main__":
     print(two)
     print(three)
     print("BESSSSSTTTT")
-    #best_clf = class31(output_dir, X_train, X_test, y_train, y_test)
-    best_clf = 4
+    best_clf = class31(output_dir, X_train, X_test, y_train, y_test)
 
     (X_1k, y_1k) = class32(output_dir, X_train, X_test, y_train, y_test, best_clf)
     # TODO : complete each classification experiment, in sequence.
     class33(output_dir, X_train, X_test, y_train, y_test, best_clf, X_1k, y_1k)
+    class34(output_dir, X_train, X_test, y_train, y_test, i)
