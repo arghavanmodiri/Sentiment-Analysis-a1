@@ -48,3 +48,8 @@ Results for AdaBoostClassifier:
  [ 304  420  647  595]
  [ 245  316  386 1061]]
 
+
+AdaBoostClassifier has the highest accuracy, in overall. However, its precision/recall for some labels is worse than some other
+groups. For example, AdaBoostClassifier's recall for label Alt is 0.53, while MLPClassifier and RandomForestClassifier have 0.66
+and 0.58, respectively. The second best classifier in term of accuracy is MLPClassifier with accuracy of 0.37 and the worst 
+classifier is SGDClassifier with accuracy of 0.31.

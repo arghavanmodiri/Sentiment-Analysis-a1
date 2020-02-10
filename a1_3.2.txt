@@ -3,3 +3,14 @@
 10000: 0.3761
 15000: 0.3794
 20000: 0.3796
+
+
+
+Based on the above results, more available training data points result in a more accurate classifier. However, this improvement
+is not linear. Going from 1K data points to 5K increased the accuracy by more than %5, while going from 15K data points to 20K
+increased the accuracy only by %0.05. One possible reason might be that 1K data points does not provide sufficient information
+to classifier for learning the problem, so more data points will help classifier to accurately classify the data. However, after
+observing almost 15K data points, the classifier was able to learn the problem as accurately as it can. More data points will not
+help that much as classifier has seen sufficient data points. At this point, to increase the accuracy, the model needs to be 
+adjusted. As an intuitive example of such, a linear model can classify a polynomial problem to some extend. No matter how many 
+data points are provided, the linear model will never pass the accuracy from a certain point.

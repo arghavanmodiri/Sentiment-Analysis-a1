@@ -30,10 +30,6 @@ def preproc1(comment , steps=range(1, 5)):
         modComm = re.sub(r"\t{1,}", " ", modComm)
         modComm = re.sub(r"\v{1,}", " ", modComm)
         modComm = re.sub(r"\f{1,}", " ", modComm)
-        if "\\u" in modComm:
-            print("**************************************************************u problem")
-            print(modComm)
-        modComm = re.sub(r"\\u{1,}", " ", modComm)
     if 2 in steps:  # unescape html
         modComm = html.unescape(modComm)
     if 3 in steps:  # remove URLs
@@ -49,8 +45,6 @@ def preproc1(comment , steps=range(1, 5)):
     for sent in modComm.sents:
         for token in sent:
             if token.tag_ == "_SP":
-                print("------------------------------------------------------SP problem")
-                print(modComm)
                 continue
 
             if token.lemma_[0] == "-":
@@ -60,7 +54,6 @@ def preproc1(comment , steps=range(1, 5)):
                 if " " in temp and len(temp) > 1:
                     temp = re.sub(r"\s", "", temp)
                 if temp == " ":
-                    print("Oh...What? ", temp)
                     continue
                 output.append(temp)
             output.append("/{}".format(token.tag_))
@@ -93,23 +86,6 @@ def main(args):
             data_df = pd.concat([data_df, data_df_temp], axis=0, ignore_index=True)
 
     allOutput = data_df.to_dict(orient='records')
-    zero = 0
-    one = 0
-    two = 0
-    three =0
-    for i in data_df['cat']:
-        if i == 'Left':
-            zero += 1
-        if i == 'Right':
-            one += 1
-        if i == 'Center':
-            two += 1
-        if i == 'Alt':
-            three += 1
-    print(zero)
-    print(one)
-    print(two)
-    print(three)
 
     fout = open(args.output, 'w')
     fout.write(json.dumps(allOutput))

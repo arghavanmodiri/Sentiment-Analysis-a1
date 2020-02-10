@@ -2,5 +2,17 @@
 5 p-values: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0004, 0.0, 0.0189, 0.0149, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0001, 0.0, 0.0, 0.0, 0.0, 0.03, 0.0055, 0.0, 0.9357, 0.0, 0.0, 0.0, 0.0, 0.0014, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0001, 0.2206, 0.0, 0.3946, 0.1074, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0033, 0.0594, 0.0, 0.0063, 0.0083, 0.0, 0.0001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0009, 0.0002, 0.0001, 0.3124, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0148, 0.0, 0.0, 0.0, 0.0002, 0.1925, 0.0, 0.2744, 0.0, 0.0, 0.0, 0.011, 0.0843, 0.0034, 0.0001, 0.0, 0.1707, 0.0, 0.0, 0.0001, 0.0, 0.0, 0.0005, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1008, 0.0, 0.0, 0.0, 0.0007, 0.0, 0.0, 0.0, 0.0, 0.0004, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2481, 0.0, 0.0, 0.0001, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 Accuracy for 1k: 0.3114
 Accuracy for full dataset: 0.3369
-Chosen feature intersection: [96, 83, 6]
-Top-5 at higher: [  6  83  96 136 153]
+Chosen feature intersection: {96, 83, 6}
+Top-5 at higher: {6, 83, 96, 136, 153}
+
+
+
+
+(a) "liwc_relativ", "liwc_motion", "Number of future-tense verbs"
+(b) When null hypothesis is false, increasing the number of data points will tend to result in a smaller P-value. P-value shows the probability
+of obtaining the achieved results, assuming the null hypothesis is true. The more data points we collect, our believe about the falseness of 
+null hypothesized will increase, so p-values become lower. On the other hand, if null hypothesize is true, the more data points we collect
+the more certain we become about the correctness of null hypothesized.
+(c) "Number of future-tense verbs", "liwc_motion", "liwc_relativ", "receptiviti_family_oriented", "receptiviti_money_oriented"
+Some groups tend to speak more about the future. Also money and family are two big factors that distinguishes people biases
+toward different groups

@@ -101,8 +101,6 @@ def class31(output_dir, X_train, X_test, y_train, y_test):
             # outf.write(f'\tConfusion Matrix: \n{conf_matrix}\n\n')
             outf.write(f'\tConfusion Matrix: \n{c_matrix}\n\n')
 
-        pass
-
     return iBest
 
 
@@ -144,7 +142,6 @@ def class32(output_dir, X_train, X_test, y_train, y_test, iBest):
             # the following output:
             # outf.write(f'{num_train}: {accuracy:.4f}\n'))
             outf.write(f'{num_train}: {acc:.4f}\n')
-        pass
 
     return (X_1k, y_1k)
 
@@ -182,7 +179,6 @@ def class33(output_dir, X_train, X_test, y_train, y_test, i, X_1k, y_1k):
         # outf.write(f'Accuracy for 1k: {accuracy_1k:.4f}\n')
         X_new = selector.fit_transform(X_1k, y_1k)
         selected_cols_1k = selector.get_support(indices=True)
-        print("selected_cols_1k : ", selected_cols_1k)
         X_test_new = selector.transform(X_test)
 
         clfs[i].fit(X_new, y_1k)
@@ -191,7 +187,6 @@ def class33(output_dir, X_train, X_test, y_train, y_test, i, X_1k, y_1k):
         accuracy_1k = accuracy(c)
         outf.write(f'Accuracy for 1k: {accuracy_1k:.4f}\n')
         selected_cols_1k = selector.get_support(indices=True)
-        print("selected_cols_1k : ", selected_cols_1k)
 
         # outf.write(f'Accuracy for full dataset: {accuracy_full:.4f}\n')
         X_new = selector.fit_transform(X_train, y_train)
@@ -202,12 +197,10 @@ def class33(output_dir, X_train, X_test, y_train, y_test, i, X_1k, y_1k):
         accuracy_full = accuracy(c)
         outf.write(f'Accuracy for full dataset: {accuracy_full:.4f}\n')
         selected_cols_full = selector.get_support(indices=True)
-        print("selected_cols_full : ", selected_cols_full)
 
         feature_intersection = list(set(selected_cols_1k).intersection(selected_cols_full))
-        outf.write(f'Chosen feature intersection: {feature_intersection}\n')
-        outf.write(f'Top-5 at higher: {selected_cols_full}\n')
-        pass
+        outf.write(f'Chosen feature intersection: {{{", ".join(str(x) for x in feature_intersection)}}}\n')
+        outf.write(f'Top-5 at higher: {{{", ".join(str(x) for x in selected_cols_full)}}}\n')
 
 
 def class34(output_dir, X_train, X_test, y_train, y_test, i):
@@ -242,7 +235,6 @@ def class34(output_dir, X_train, X_test, y_train, y_test, i):
                 y_pred = clf.predict(X_ts_fold)
                 c_temp = confusion_matrix(y_ts_fold, y_pred)
                 acc = accuracy(c_temp)
-                print(acc)
                 #kfold_accuracies_avg[idx] += acc/5.0
                 kfold_accuracies[fold_count].append(acc)
 
@@ -255,7 +247,6 @@ def class34(output_dir, X_train, X_test, y_train, y_test, i):
             if i != best_clf_idx:
                 p_values.append(ttest_rel(kfold_accuracies_arr[:,i], kfold_accuracies_arr[:,best_clf_idx]).pvalue)
         outf.write(f'p-values: {[round(pval, 4) for pval in p_values]}\n')
-        pass
 
 
 if __name__ == "__main__":
@@ -275,29 +266,11 @@ if __name__ == "__main__":
         data_list = data[item]
     X = data_list[:,:-1]
     y = data_list[:,-1]
-    #for comment in data_list:
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-    zero = 0
-    one = 0
-    two = 0
-    three =0
-    for i in y:
-      if i == 0:
-        zero += 1
-      if i == 1:
-        one += 1
-      if i == 2:
-        two += 1
-      if i == 3:
-        three += 1
-    print(zero)
-    print(one)
-    print(two)
-    print(three)
-    print("BESSSSSTTTT")
+
     best_clf = class31(output_dir, X_train, X_test, y_train, y_test)
 
     (X_1k, y_1k) = class32(output_dir, X_train, X_test, y_train, y_test, best_clf)
-    # TODO : complete each classification experiment, in sequence.
     class33(output_dir, X_train, X_test, y_train, y_test, best_clf, X_1k, y_1k)
     class34(output_dir, X_train, X_test, y_train, y_test, i)

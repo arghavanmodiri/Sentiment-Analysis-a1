@@ -75,8 +75,6 @@ def extract1(comment):
     dominance = []
 
     if len(tags) != len(words):
-        print("*******************")
-        print("ERROR in finding words and tag in this comment :\n", repr(comment))
         print(tags)
         print(words)
         print("len(tags): ", len(tags),"    -len(words): ", len(words))
@@ -213,27 +211,6 @@ def main(args):
         feats[idx][-1] = int(cat_dict[line['cat']])
         idx += 1
 
-    zero = 0
-    one = 0
-    two = 0
-    three =0
-    temp = 0
-    for i in feats[:,-1]:
-        temp += 1
-        #print(temp," : ",i)
-        if i == 0:
-            zero += 1
-        if i == 1:
-            one += 1
-        if i == 2:
-            two += 1
-        if i == 3:
-            three += 1
-    print(zero)
-    print(one)
-    print(two)
-    print(three)
-
     np.savez_compressed(args.output, feats)
 
     
@@ -242,7 +219,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output", help="Directs the output to a filename of your choice", required=True)
     parser.add_argument("-i", "--input", help="The input JSON file, preprocessed as in Task 1", required=True)
     parser.add_argument("-p", "--a1_dir", help="Path to csc401 A1 directory. By default it is set to the cdf directory for the assignment.", default="/u/cs401/A1/")
-    args = parser.parse_args()        
+    args = parser.parse_args()
 
     main(args)
 
