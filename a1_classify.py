@@ -273,4 +273,4 @@ if __name__ == "__main__":
 
     (X_1k, y_1k) = class32(output_dir, X_train, X_test, y_train, y_test, best_clf)
     class33(output_dir, X_train, X_test, y_train, y_test, best_clf, X_1k, y_1k)
-    class34(output_dir, X_train, X_test, y_train, y_test, i)
+    class34(output_dir, X_train, X_test, y_train, y_test, best_clf)
